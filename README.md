@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Thesis/img/system_description.svg" alt="System Architecture" width="85%">
+  <img src="Thesis_typst/img/system_description.svg" alt="System Architecture" width="85%">
 </p>
 
 # Model Based Synthesis and Validation of High Performance Supervisory Controllers for Embedded Systems
@@ -317,11 +317,11 @@ In all cases the supervisor behaved as the formal model predicted. No deadlocks,
 
 **Supervisor TUI during coordinated operation:**
 <p align="center">
-   <img src="Thesis/img/System_Katopsi_finaliteto.png" alt="Real Physical System width=90%>
+   <img src="Thesis_typst/img/System_Katopsi_finaliteto.png" alt="Real Physical System width=90%>
 </p>
      
 <p align="center">
-  <img src="Thesis/img/Final_tui_system_running.png" alt="Supervisor TUI during operation" width="90%">
+  <img src="Thesis_typst/img/Final_tui_system_running.png" alt="Supervisor TUI during operation" width="90%">
 </p>
 The display shows coordinator phase and velocity setpoint, per-node state with color coding (green = healthy, red = fault), diagnostic counters, and the real-time event log.
 
