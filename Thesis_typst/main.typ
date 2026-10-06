@@ -463,11 +463,11 @@ The transition function $delta(q,sigma)$ is defined only when event $sigma$ is a
     edge((0, 5.0), (0, 3.8), "-|>", stroke: 1pt + black),
 
     /// States (arranged in a clean loop)
-    node((0, 3.8), [q₀], radius: 1.5em),
-    node((3.5, 1.9), [q₁], radius: 1.5em),
-    node((3.5, -1.9), [q₂], radius: 1.5em),
-    node((0, -3.8), [q₃], radius: 1.5em),
-    node((-3.5, 0), [q₄], radius: 1.5em),
+    node((0, 3.8), [q0], radius: 1.5em),
+    node((3.5, 1.9), [q1], radius: 1.5em),
+    node((3.5, -1.9), [q2], radius: 1.5em),
+    node((0, -3.8), [q3], radius: 1.5em),
+    node((-3.5, 0), [q4], radius: 1.5em),
 
     /// Marked state (double circle)
     node((0, -3.8), "", radius: 1.9em, fill: none, stroke: 1.2pt + black),
@@ -1922,7 +1922,7 @@ down the gate drivers. The datasheet states: _"During fault shut down conditions
        recovers.],
     td[GVDD overvoltage (GVDD\_OV)],
     tdc[> 16 V], tdc[Latching],
-    td[EN\_GATE reset required (pulse LOW ≥ 5 µs, then HIGH; device ready
+    td[EN\_GATE reset required (pulse LOW ≥ 5 μs, then HIGH; device ready
        within 10 ms). Indicates charge pump fault or gate supply spike.],
     td[Thermal shutdown (OTSD)],
     tdc[150 °C], tdc[Latching],
@@ -1992,7 +1992,7 @@ The mapping is injective because:
 
 - For *GVDD\_OV*: `EN_GATE` reset clears the latch only if the overvoltage source is resolved. `nFAULT` remaining LOW after reset indicates a persistent hardware fault and that re-energisation is not safe.
 
-In both cases the reset sequence is: EN\_GATE LOW for ≥ 5 µs then HIGH; device ready within 10 ms @drv8302.
+In both cases the reset sequence is: EN\_GATE LOW for ≥ 5 μs then HIGH; device ready within 10 ms @drv8302.
 
 
 === Resource Layer Control Framework (SimpleFOC) <sec:simple-FOC>
@@ -2528,7 +2528,7 @@ commander.addCustomRegister(
 #pagebreak()
 === Node Firmware <sec:node-firmware>
 
-Each motor drive node runs a single firmware image on the Teensy 4.0 that combines real‑time motor control [@sec:simple-FOC], a local state machine governing the hardware lifecycle, and a CAN communication layer [@sec:can-commander] that bridges local behavior to the network supervisor. This section describes the design of the state machine, the safety rationale behind it, and its correspondence to the CIF plant model used for supervisor synthesis.
+Each motor drive node runs a single firmware image on the Teensy 4.0 that combines real‐time motor control [@sec:simple-FOC], a local state machine governing the hardware lifecycle, and a CAN communication layer [@sec:can-commander] that bridges local behavior to the network supervisor. This section describes the design of the state machine, the safety rationale behind it, and its correspondence to the CIF plant model used for supervisor synthesis.
 #figure(image("img/nodeModel.png",width: 120%),
 caption:[FSM Diagram of the Node Firmware.
 ]
@@ -2539,11 +2539,11 @@ caption:[FSM Diagram of the Node Firmware.
 
 In a networked control architecture, a fundamental design decision is where safety reactions are executed. When the DRV8302 [@sec:DRV8302_gate] gate driver signals a fault through its nFAULT pin, there are two possible approaches: the node can report the fault to the supervisor and wait for instructions, or it can react locally and inform the supervisor after the fact.
 
-We use the second strategy. Each node looks after its own fail‑safe behavior: the firmware spots a fault, turns off the motor and gate driver, and switches into a safe state on its own. The supervisor only gets a CAN message afterwards and does not take part in the immediate reaction. Because of this, the delay from fault detection to motor shutdown is set only by the firmware loop period, not by CAN latency, supervisor processing time, or lost messages.
+We use the second strategy. Each node looks after its own fail‐safe behavior: the firmware spots a fault, turns off the motor and gate driver, and switches into a safe state on its own. The supervisor only gets a CAN message afterwards and does not take part in the immediate reaction. Because of this, the delay from fault detection to motor shutdown is set only by the firmware loop period, not by CAN latency, supervisor processing time, or lost messages.
 
-In IEC 61508 terms, a safe state is any condition of the equipment where the relevant hazard has been removed or brought under control. In our case, the states `FAULT` and `NO_POWER` are safe states for the motor node: all three windings are unpowered (floating) and the gate driver outputs are high‑impedance, so the motor cannot produce torque. The state `STOPPING` is an intermediate safe state during a controlled stop: the motor is slowing down under closed‑loop control, and the final safe state `IDLE` is reached when the speed target has dropped to zero and the rotor is at rest.
+In IEC 61508 terms, a safe state is any condition of the equipment where the relevant hazard has been removed or brought under control. In our case, the states `FAULT` and `NO_POWER` are safe states for the motor node: all three windings are unpowered (floating) and the gate driver outputs are high‐impedance, so the motor cannot produce torque. The state `STOPPING` is an intermediate safe state during a controlled stop: the motor is slowing down under closed‐loop control, and the final safe state `IDLE` is reached when the speed target has dropped to zero and the rotor is at rest.
 
-The split between local safety and network coordination follows the IEC 61508‑1 idea of having more than one layer of protection. The node state machine is one layer and the synthesized supervisor is another. Even if the supervisor fails or the CAN bus goes down, the node can still move itself into a safe state, because it never waits for outside permission to shut down. The main firmware loop — which reads diagnostics, handles CAN messages, and updates the state machine — runs at about 150 kHz, separate from the 20 kHz FOC control loop, so the safety logic stays responsive even when the motor control is busy.
+The split between local safety and network coordination follows the IEC 61508‐1 idea of having more than one layer of protection. The node state machine is one layer and the synthesized supervisor is another. Even if the supervisor fails or the CAN bus goes down, the node can still move itself into a safe state, because it never waits for outside permission to shut down. The main firmware loop — which reads diagnostics, handles CAN messages, and updates the state machine — runs at about 150 kHz, separate from the 20 kHz FOC control loop, so the safety logic stays responsive even when the motor control is busy.
 ==== State Set
 
 The firmware defines ten states. Each state corresponds to one unambiguous physical condition of the hardware. @tbl:node-states lists them.
@@ -2583,7 +2583,7 @@ The firmware defines ten states. Each state corresponds to one unambiguous physi
 #note([
    
   The *Motor* column shows if
-    the motor controller is enabled (PWM outputs active) or not(outputs high‑impedance). The gate driver is managed by the motor object:
+    the motor controller is enabled (PWM outputs active) or not(outputs high‐impedance). The gate driver is managed by the motor object:
     - calling `motor.disable()` automatically invokes `driver.disable()`
     - `motor.enable()` calls `driver.enable()`, so both are always in sync.
 ])
@@ -2786,7 +2786,7 @@ $ Q_"supply" approx Q_"exhaust" quad (±10% "tolerance") $ where $Q$ is volumetr
 
 *Consequences of Imbalance:*
 
-- *Depressurization* [$Q_"exhaust" > Q_"supply"$]: In combustion appliances (furnaces, water heaters) reverse draft can pull into occupied spaces flue gases containing carbon monoxide  instead of exhausting them through the chimney @doe-hrv-guide. This is a serious life‑safety hazard.
+- *Depressurization* [$Q_"exhaust" > Q_"supply"$]: In combustion appliances (furnaces, water heaters) reverse draft can pull into occupied spaces flue gases containing carbon monoxide  instead of exhausting them through the chimney @doe-hrv-guide. This is a serious life‐safety hazard.
 
 - *Pressurization* ( $Q_"exhaust" <   Q_"supply"$ ): Pushes unfiltered outdoor air through gaps in the building envelope, disregarding filtration and heat recovery. Reduces indoor air quality and consumes energy unnecessarily
 
@@ -2854,13 +2854,13 @@ The formalization of the firmware FSM seen in @sec:node-firmware is the CIF plan
 
 ==== Marked Location Strategy
 
-The formal definition of a marked state (@sec:cif_language) says it is an acceptable end state — a location where the system sees its current task as finished.The non‑blocking property means that from every reachable state, there exists a finite sequence of events that leads to a marked location; in other words, the system can always, in principle, reach a completion state.
+The formal definition of a marked state (@sec:cif_language) says it is an acceptable end state — a location where the system sees its current task as finished.The non‐blocking property means that from every reachable state, there exists a finite sequence of events that leads to a marked location; in other words, the system can always, in principle, reach a completion state.
 
-In this plant model, marked locations are not “good” and unmarked ones are not “bad”. The difference is simply between states where the node has finished what it was doing and states where it is still working. The model marks seven of the ten locations:`INIT`, `SETUP_ERROR`, `NEEDS_RECAL`, `CAL_FAILED`, `IDLE`, `FAULT`, and `NO_POWER`. All seven are fault‑safe states (@sec:safety_reaction): the motor is disabled, the gate driver is in high‑impedance, meaning the node can safely stay in them. Each one represents a completed outcome, such as successful initialization, a detected fault, a lost power supply, or a failed calibration, rather than an ongoing operation.
+In this plant model, marked locations are not “good” and unmarked ones are not “bad”. The difference is simply between states where the node has finished what it was doing and states where it is still working. The model marks seven of the ten locations:`INIT`, `SETUP_ERROR`, `NEEDS_RECAL`, `CAL_FAILED`, `IDLE`, `FAULT`, and `NO_POWER`. All seven are fault‐safe states (@sec:safety_reaction): the motor is disabled, the gate driver is in high‐impedance, meaning the node can safely stay in them. Each one represents a completed outcome, such as successful initialization, a detected fault, a lost power supply, or a failed calibration, rather than an ongoing operation.
 
 The three unmarked locations — `CALIBRATING`, `RUNNING`, and `STOPPING` are different. Here the motor is active and current is flowing, so the operation must move forward to completion. These are tasks in progress, not finished tasks.
 
-Having the fault‑safe states marked is essential because hardware recovery depends on physical conditions that the supervisor cannot control — for example, the die cooling below 130 °C, or the return of power, or a successful `EN_GATE` reset. If `FAULT` or `NO_POWER` states were unmarked, the non‑blocking check would require a guaranteed path out of them, which is not possible when recovery is uncertain. The model would then be flagged as blocking. By marking these states, the model correctly says that a node in a fault‑safe state with the motor disabled has finished its immediate task, having reached a safe configuration. What might happen next, either it be recovery, manual intervention, or remaining in standby, is handled by the coordinator and its higher‑level requirements.
+Having the fault‐safe states marked is essential because hardware recovery depends on physical conditions that the supervisor cannot control — for example, the die cooling below 130 °C, or the return of power, or a successful `EN_GATE` reset. If `FAULT` or `NO_POWER` states were unmarked, the non‐blocking check would require a guaranteed path out of them, which is not possible when recovery is uncertain. The model would then be flagged as blocking. By marking these states, the model correctly says that a node in a fault‐safe state with the motor disabled has finished its immediate task, having reached a safe configuration. What might happen next, either it be recovery, manual intervention, or remaining in standby, is handled by the coordinator and its higher‐level requirements.
 ==== Diagnostic Counters: Cumulative vs Consecutive <pin2>
 
 The node maintains five diagnostic counters serving different purposes. 
@@ -3438,7 +3438,7 @@ On shutdown, the system continues running for up to 30 additional cycles, each s
 
 
 The supervisor runs on a Luckfox Lyra Plus single-board computer based on the Rockchip RK3506G2 SoC @rockchip_rk3506g2_datasheet_2025 (triple-core ARM Cortex-A7 at 1.2 GHz, 128 MB DDR3L) running Linux buildroot OS. The board connects to the CAN bus via an SN65HVD230 transceiver, accessed through the Linux SocketCAN driver (can0 interface at 1 Mbit/s). The operator/technician interacts with the supervisor remotely via SSH over the board's 10/100 Mbps Ethernet port.
-We deliberately picked a platform that is not particularly powerful to see whether the synthesized supervisor could keep up on hardware you might actually find in a building automation cabinet. The fact that the cycle time stayed under 150 µs on that board tells us the computational overhead is negligible, and there is no reason this approach could not run on similar embedded targets.
+We deliberately picked a platform that is not particularly powerful to see whether the synthesized supervisor could keep up on hardware you might actually find in a building automation cabinet. The fact that the cycle time stayed under 150 μs on that board tells us the computational overhead is negligible, and there is no reason this approach could not run on similar embedded targets.
 
 === Terminal User Interface
 A text-based operator interface exposes our supervisor which renders  ANSI escape sequences over the SSH session. The TUI operates in non-blocking raw terminal mode and redraws the full screen on every supervisor cycle.
@@ -3555,7 +3555,7 @@ The below table summarizes the key metrics of the implementation.
 
     [Supervisor runtime footprint (text + data + bss)], [≈ 43 KB],
     [Application supervisor cycle], [10 ms (100 Hz)],
-    [Measured cycle execution time (engine)], [< 150 µs],
+    [Measured cycle execution time (engine)], [< 150 μs],
 
     // ─────────────────────────────
     // Communication & Platform
@@ -3626,7 +3626,7 @@ A set of transferable modelling patterns emerged from this work. Structuring cou
 
 There are a few things this work does not cover, and being upfront about them matters for anyone who might try to build on it.
 
-The most obvious one is scale. The current implementation demostrates $N=2$ nodes. To put this in perspective, consider the BDD footprint of our models. The ESCET documentation explains that each CIF variable is internally represented using boolean BDD variables: a `bool` uses 1 bit, an `int[0..k]` uses $log_2(k+1)$ bits, and each automaton with multiple locations gets a location pointer variable @escet2026. In our two-node model this adds up to roughly 86 BDD variables across bot nodes and the coordinator. Synthesis completed in 2.5 seconds because ESCET's symbolic BDD-based approach efficiently compresses the reachable state space without explicit enumeration @escet2026. However, each additional node would add approximately 37 BDD variable ordering plus new cross-node requirements and the synchronous composition grows combinatorially with the number of components @cassandras2021. The ESCET documentation notes that BDD variable ordering "can significantly influence the performance of synthesis" and that BDD operation cache can become "a common cause of out-of-memory errors" when they exceed available CPU cache capacity @escet2026.
+The most obvious one is scale. The current implementation demonstrates $N=2$ nodes. To put this in perspective, consider the BDD footprint of our models. The ESCET documentation explains that each CIF variable is internally represented using boolean BDD variables: a `bool` uses 1 bit, an `int[0..k]` uses $log_2(k+1)$ bits, and each automaton with multiple locations gets a location pointer variable @escet2026. In our two-node model this adds up to roughly 86 BDD variables across bot nodes and the coordinator. Synthesis completed in 2.5 seconds because ESCET's symbolic BDD-based approach efficiently compresses the reachable state space without explicit enumeration @escet2026. However, each additional node would add approximately 37 BDD variable ordering plus new cross-node requirements and the synchronous composition grows combinatorially with the number of components @cassandras2021. The ESCET documentation notes that BDD variable ordering "can significantly influence the performance of synthesis" and that BDD operation cache can become "a common cause of out-of-memory errors" when they exceed available CPU cache capacity @escet2026.
 Whether a 10-node or 50-node variant remains tractable under monolithic synthesis is an open empirical question we did not investigate. 
 
 
